@@ -1,14 +1,6 @@
 # Hydra — Multi-Agent Business Intelligence & Applicant Management Platform
 
-> **Built for IIT Delhi Shipathon 2026** | Team Nasiko
-
 Hydra is an AI-powered enterprise platform that combines **business intelligence reporting** with an **intelligent applicant tracking system**. Managers can ask natural-language questions about finance, inventory, and HR — and receive professional PDF/PPTX/XLSX reports with charts, tables, and actionable recommendations. Job applicants get a conversational AI agent that guides them through profile building, skill gap analysis, job discovery, and application tracking.
-
----
-
-## Demo Video
-
-[Watch the demo on Google Drive](https://drive.google.com/drive/folders/1034bYslC-q9pkTjYNotVbNNcjPdsqbRx?usp=sharing)
 
 ---
 
@@ -156,16 +148,16 @@ Docker Compose starts 3 services:
 
 ```bash
 # 1. Set up PostgreSQL and run schema files
-psql -U postgres -d postgres -f shipathon_JMD/00_extensions.sql
-psql -U postgres -d postgres -f shipathon_JMD/01_inventory.sql
-psql -U postgres -d postgres -f shipathon_JMD/02_hr.sql
-psql -U postgres -d postgres -f shipathon_JMD/03_finance.sql
-psql -U postgres -d postgres -f shipathon_JMD/04_applicant.sql
+psql -U postgres -d postgres -f hydra_agent/00_extensions.sql
+psql -U postgres -d postgres -f hydra_agent/01_inventory.sql
+psql -U postgres -d postgres -f hydra_agent/02_hr.sql
+psql -U postgres -d postgres -f hydra_agent/03_finance.sql
+psql -U postgres -d postgres -f hydra_agent/04_applicant.sql
 
 # 2. Seed the data
 pip install asyncpg numpy faker psycopg2-binary sentence-transformers
-python shipathon_JMD/seed_data.py
-python shipathon_JMD/seed_applicant_data.py
+python hydra_agent/seed_data.py
+python hydra_agent/seed_applicant_data.py
 
 # 3. Configure environment
 cp .env.example .env
@@ -288,7 +280,7 @@ hydra-hackthon/
 ├── docker/
 │   └── entrypoint.sh           # App container entrypoint
 │
-├── shipathon_JMD/
+├── hydra_agent/
 │   ├── 00_extensions.sql       # pgvector + schema creation
 │   ├── 01_inventory.sql        # Inventory tables + indexes
 │   ├── 02_hr.sql               # HR tables + indexes
@@ -323,7 +315,7 @@ All configuration is via environment variables (`.env` file):
 | `SANDBOX_TIMEOUT` | `60` | Max seconds for code execution |
 | `YOUTUBE_API_KEY` | *(optional)* | YouTube Data API key for learning resources |
 | `HYDRA_API_KEY` | *(optional)* | HydraDB API key for vector job matching |
-| `HYDRA_TENANT_ID` | `nasiko_shipathon` | HydraDB tenant identifier |
+| `HYDRA_TENANT_ID` | `hydra_agent` | HydraDB tenant identifier |
 
 ---
 
@@ -340,4 +332,4 @@ All configuration is via environment variables (`.env` file):
 
 ## License
 
-IIT Delhi Shipathon 2026 — Team Nasiko
+MIT

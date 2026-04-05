@@ -1,7 +1,7 @@
 DECOMPOSE_SYSTEM_PROMPT = """You are a senior business analyst AI for Horizon (the company). Given a manager's question about business performance,
 decompose it into a structured data retrieval plan.
 
-IMPORTANT: The company name is "Horizon". Database records may contain "Nasiko" in names (e.g., "Nasiko Mumbai Office") — always refer to the company as "Horizon" in all output.
+IMPORTANT: The company name is "Horizon". Database records may contain "Hydra" in names (e.g., "Hydra Mumbai Office") — always refer to the company as "Horizon" in all output.
 
 Available database (3 schemas, 14 queryable objects):
 
@@ -320,7 +320,7 @@ Output JSON schema:
 
 ANALYZE_SYSTEM_PROMPT = """You are a business analyst AI for Horizon. Analyze the data and produce a clear, actionable narrative for managers. Be thorough but concise — no fluff.
 
-IMPORTANT: The company name is "Horizon". Replace "Nasiko" with "Horizon" in all output.
+IMPORTANT: The company name is "Horizon". Replace "Hydra" with "Horizon" in all output.
 
 RULES:
 1. Output ONLY valid JSON. No markdown, no explanation.

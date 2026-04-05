@@ -1,5 +1,5 @@
 """
-seed_data.py — Populate Nasiko RAG Pipeline database with realistic synthetic data.
+seed_data.py — Populate Hydra Agent database with realistic synthetic data.
 
 Volumes (adjusted):
   75 products, 7 warehouses, 7 offices, 525 inventory_levels,
@@ -426,7 +426,7 @@ async def seed_warehouses(conn) -> list[int]:
             """INSERT INTO inventory.warehouses
                (warehouse_name, city, state, warehouse_type, capacity_square_feet)
                VALUES ($1, $2, $3, $4, $5) RETURNING warehouse_id""",
-            f"Nasiko {city} Warehouse",
+            f"Hydra {city} Warehouse",
             city,
             CITY_STATES[city],
             wh_types[i],
@@ -461,7 +461,7 @@ async def seed_offices(conn) -> list[int]:
                 working_capital_period_month)
                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
                RETURNING office_id""",
-            f"Nasiko {city} Office", city, CITY_STATES[city], office_types[i],
+            f"Hydra {city} Office", city, CITY_STATES[city], office_types[i],
             random_date(date(2018, 1, 1), date(2022, 12, 31)), "active",
             Decimal(str(cap)), Decimal(str(opex)), date(2026, 3, 1),
             Decimal(str(ar)), Decimal(str(inv_val)),
@@ -684,10 +684,10 @@ async def seed_employees(conn) -> list[dict]:
             name = fake.name()
             # Generate unique email
             base_email = name.lower().replace(" ", ".").replace("..", ".")
-            email = f"{base_email}@nasiko.com"
+            email = f"{base_email}@hydra-agent.com"
             counter = 1
             while email in used_emails:
-                email = f"{base_email}{counter}@nasiko.com"
+                email = f"{base_email}{counter}@hydra-agent.com"
                 counter += 1
             used_emails.add(email)
 

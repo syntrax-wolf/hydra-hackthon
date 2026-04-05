@@ -26,7 +26,7 @@ DB_PASS = os.getenv("POSTGRES_PASSWORD", "")
 DB_NAME = os.getenv("POSTGRES_DB", "horizon")
 
 BASE_DIR = Path(__file__).parent
-SQL_DIR = BASE_DIR / "shipathon_JMD"
+SQL_DIR = BASE_DIR / "hydra_agent"
 
 
 def _header(text):
@@ -171,7 +171,7 @@ def seed_base_data():
         print(f"  [ERROR] seed_data.py failed (exit code {result.returncode})")
         print(f"  Try running manually:")
         print(f"    set DATABASE_URL=postgresql://{DB_USER}:<password>@{DB_HOST}:{DB_PORT}/{DB_NAME}")
-        print(f"    python shipathon_JMD/seed_data.py")
+        print(f"    python hydra_agent/seed_data.py")
 
 
 # ── 5. Seed onboarding data ──────────────────────────────────

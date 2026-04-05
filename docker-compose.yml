@@ -11,11 +11,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       # SQL schema files run in alphabetical order on first init
-      - ./shipathon_JMD/00_extensions.sql:/docker-entrypoint-initdb.d/00_extensions.sql:ro
-      - ./shipathon_JMD/01_inventory.sql:/docker-entrypoint-initdb.d/01_inventory.sql:ro
-      - ./shipathon_JMD/02_hr.sql:/docker-entrypoint-initdb.d/02_hr.sql:ro
-      - ./shipathon_JMD/03_finance.sql:/docker-entrypoint-initdb.d/03_finance.sql:ro
-      - ./shipathon_JMD/04_applicant.sql:/docker-entrypoint-initdb.d/04_applicant.sql:ro
+      - ./hydra_agent/00_extensions.sql:/docker-entrypoint-initdb.d/00_extensions.sql:ro
+      - ./hydra_agent/01_inventory.sql:/docker-entrypoint-initdb.d/01_inventory.sql:ro
+      - ./hydra_agent/02_hr.sql:/docker-entrypoint-initdb.d/02_hr.sql:ro
+      - ./hydra_agent/03_finance.sql:/docker-entrypoint-initdb.d/03_finance.sql:ro
+      - ./hydra_agent/04_applicant.sql:/docker-entrypoint-initdb.d/04_applicant.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
@@ -35,8 +35,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-horizon}
     volumes:
-      - ./shipathon_JMD/seed_data.py:/work/seed_data.py:ro
-      - ./shipathon_JMD/seed_applicant_data.py:/work/seed_applicant_data.py:ro
+      - ./hydra_agent/seed_data.py:/work/seed_data.py:ro
+      - ./hydra_agent/seed_applicant_data.py:/work/seed_applicant_data.py:ro
     working_dir: /work
     entrypoint: ["bash", "-c"]
     command:

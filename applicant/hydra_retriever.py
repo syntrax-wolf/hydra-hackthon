@@ -3,7 +3,7 @@
 Wraps HydraDB's full_recall API and provides helper functions
 to convert results into structured job data or LLM-ready context.
 
-Uses the nasiko_shipathon tenant with sub-tenants:
+Uses the hydra_agent tenant with sub-tenants:
   - job_postings: all job posting data
   - applicant_profiles: applicant profile memories
   - applications: application records
@@ -18,7 +18,7 @@ from typing import Any
 log = logging.getLogger("hydra_retriever")
 
 HYDRA_API_KEY = os.environ.get("HYDRA_API_KEY", "")
-TENANT_ID = os.environ.get("HYDRA_TENANT_ID", "nasiko_shipathon")
+TENANT_ID = os.environ.get("HYDRA_TENANT_ID", "hydra_agent")
 
 _client = None
 

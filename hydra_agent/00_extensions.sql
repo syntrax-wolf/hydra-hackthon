@@ -1,5 +1,5 @@
 -- ============================================================
--- Nasiko RAG Pipeline — Extensions & Shared Setup
+-- Hydra Agent — Extensions & Shared Setup
 -- Run this FIRST before any schema files.
 -- ============================================================
 

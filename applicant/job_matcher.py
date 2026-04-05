@@ -1,6 +1,6 @@
 """Job Matcher — Hybrid semantic + keyword search against job postings.
 
-Primary: HydraDB recall (semantic + keyword via nasiko_shipathon tenant).
+Primary: HydraDB recall (semantic + keyword via hydra_agent tenant).
 Fallback: PostgreSQL with pgvector embedding + tsvector keyword search.
 """
 
