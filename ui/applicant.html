@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon — Applicant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+    --border: #e2e8f0; --border-light: #f1f5f9;
+    --text: #0f172a; --text2: #475569; --text-muted: #94a3b8;
+    --accent: #3b82f6; --accent2: #2563eb; --accent-soft: #dbeafe;
+    --blue: #3b82f6; --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+
+/* Header */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+.header h1 { font-size: 1.2rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.header h1 span { background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.header-links { display: flex; gap: 1rem; align-items: center; }
+.header-links a, .header-links button { color: var(--text2); text-decoration: none; font-size: 0.85rem; cursor: pointer; background: none; border: none; font-family: inherit; transition: color 0.2s; }
+.header-links a:hover, .header-links button:hover { color: var(--accent); }
+
+/* Auth Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; width: 400px; max-width: 90vw; box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+.modal h2 { font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text); }
+.modal p { color: var(--text2); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.modal input { width: 100%; padding: 0.65rem 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit; }
+.modal input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.modal button.primary { width: 100%; padding: 0.7rem; border-radius: 8px; background: var(--accent); color: white; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; font-family: inherit; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.modal button.primary:hover { background: var(--accent2); box-shadow: var(--shadow-md); }
+
+/* Main Layout */
+.main { flex: 1; display: flex; flex-direction: column; max-width: 820px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem; }
+.chat-area { flex: 1; overflow-y: auto; padding-bottom: 1rem; }
+.message { margin-bottom: 1rem; animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.msg-user { text-align: right; }
+.msg-user .bubble { background: var(--text); color: white; display: inline-block; padding: 0.7rem 1.2rem; border-radius: 20px 20px 6px 20px; max-width: 70%; text-align: left; font-size: 0.9rem; line-height: 1.5; box-shadow: var(--shadow-sm); }
+.msg-assistant .bubble { background: var(--surface); border: 1px solid var(--border); padding: 1.2rem; border-radius: 6px 16px 16px 16px; box-shadow: var(--shadow-sm); }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin: 0.5rem 0; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s; }
+.card:hover { box-shadow: var(--shadow-md); }
+.card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text); }
+.card-field { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); }
+.card-field label { color: var(--text2); font-size: 0.85rem; min-width: 120px; }
+
+/* Buttons */
+.btn { padding: 0.5rem 1.2rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; font-family: inherit; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent2); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.btn-outline { background: white; color: var(--text2); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { background: #059669; }
+.btn-danger { background: white; color: var(--red); border: 1.5px solid var(--red); }
+.btn-danger:hover { background: #fef2f2; }
+.btn-disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; opacity: 0.6; box-shadow: none; }
+.btn-group { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+
+/* Progress bar */
+.progress-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin: 0.5rem 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #8b5cf6); border-radius: 4px; transition: width 0.3s; }
+
+/* Job cards */
+.job-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+.job-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.job-card h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text); }
+.job-card .company { color: var(--text2); font-size: 0.85rem; }
+.job-card .match { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 0.4rem; }
+.match-high { background: rgba(34,197,94,0.15); color: var(--green); }
+.match-mid { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.match-low { background: rgba(239,68,68,0.15); color: var(--red); }
+.skill-tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; margin: 0.1rem; }
+.skill-matched { background: rgba(34,197,94,0.15); color: var(--green); }
+.skill-missing { background: rgba(239,68,68,0.15); color: var(--red); }
+.skill-preferred { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+/* Form field status */
+.form-field { display: flex; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); }
+.form-field .field-status { width: 20px; margin-right: 0.5rem; font-size: 0.85rem; }
+.form-field .field-label { color: var(--text2); font-size: 0.85rem; min-width: 110px; }
+.form-field .field-value { font-size: 0.85rem; color: var(--text); flex: 1; }
+.field-filled { color: var(--green); }
+.field-empty { color: var(--text-muted); opacity: 0.5; }
+
+/* Blocked job card */
+.job-card-blocked { opacity: 0.7; border-color: var(--red); border-style: dashed; background: #fef2f2; }
+.block-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: rgba(239,68,68,0.15); color: var(--red); margin-top: 0.3rem; }
+
+/* YouTube suggestion */
+.yt-link { display: block; color: var(--blue); font-size: 0.8rem; text-decoration: none; margin: 0.15rem 0; }
+.yt-link:hover { text-decoration: underline; }
+
+/* Follow-ups */
+.follow-ups { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+.follow-up-btn { padding: 0.4rem 0.8rem; border-radius: 20px; background: white; border: 1px solid var(--border); color: var(--text2); font-size: 0.8rem; cursor: pointer; font-family: inherit; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.follow-up-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+/* Input bar */
+.input-bar { display: flex; gap: 0.5rem; padding: 1rem 0; border-top: 1px solid var(--border); margin-top: auto; align-items: center; background: var(--bg); }
+.input-bar input[type="text"] { flex: 1; padding: 0.7rem 1rem; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.9rem; font-family: inherit; transition: all 0.2s; }
+.input-bar input[type="text"]::placeholder { color: var(--text-muted); }
+.input-bar input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: white; }
+.input-bar button { padding: 0.7rem 1.5rem; border-radius: var(--radius); background: var(--accent); color: white; border: none; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.input-bar button:hover { background: var(--accent2); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.upload-btn { padding: 0.55rem 0.7rem; border-radius: 8px; background: white; color: var(--text2); border: 1.5px solid var(--border); cursor: pointer; font-size: 1.1rem; line-height: 1; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.upload-btn.uploading { opacity: 0.5; pointer-events: none; }
+.resume-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin: 0.5rem 0; box-shadow: var(--shadow-sm); }
+.resume-card h3 { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text); }
+.resume-field { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.85rem; }
+.resume-field label { color: var(--text2); min-width: 110px; }
+.resume-status { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.resume-status.success { background: rgba(34,197,94,0.15); color: var(--green); }
+.resume-status.failed { background: rgba(239,68,68,0.15); color: var(--red); }
+
+/* Spinner */
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.hidden { display: none !important; }
+
+/* Section headers */
+.section-header { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+.section-header .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal-overlay">
+    <div class="modal">
+        <h2>Get Started</h2>
+        <p>Enter your details to begin your job search journey.</p>
+        <input type="text" id="authName" placeholder="Full Name">
+        <input type="email" id="authEmail" placeholder="Email Address">
+        <button class="primary" onclick="startSession()">Start</button>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <h1>Horizon — Applicant</h1>
+    <div class="header-links">
+        <button onclick="showProfile()">My Profile</button>
+        <button onclick="resetProfile()" style="color:var(--red)">Reset</button>
+        <a href="/">Back to Home</a>
+    </div>
+</div>
+
+<!-- Main Chat -->
+<div class="main">
+    <div class="chat-area" id="chatArea"></div>
+    <div class="input-bar">
+        <input type="file" id="resumeFileInput" accept=".pdf" style="display:none" onchange="uploadResume()">
+        <button class="upload-btn" id="uploadBtn" onclick="document.getElementById('resumeFileInput').click()" title="Upload Resume (PDF)">&#128206;</button>
+        <input type="text" id="msgInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+let sessionToken = null;
+let applicantId = null;
+let conversationHistory = [];
+let selectedConfirmationSkills = new Set();
+
+// ── Auth ──
+async function startSession() {
+    const name = document.getElementById('authName').value.trim();
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email) return alert('Email is required');
+
+    const res = await fetch('/api/applicant/auth/start', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, full_name: name || null}),
+    });
+    const data = await res.json();
+    sessionToken = data.session_token;
+    applicantId = data.applicant_id;
+    document.getElementById('authModal').classList.add('hidden');
+
+    const phase = data.profile?.onboarding_phase || 1;
+    if (phase <= 2) {
+        addAssistantMessage({type: 'applicant', step: 'chat_response',
+            message: `Welcome${name ? ', ' + name : ''}! I'm your career assistant at Horizon Technologies. Tell me — are you looking for a job, or do you have any questions about our company?`});
+    } else {
+        addAssistantMessage({type: 'applicant', step: 'welcome',
+            message: `Welcome back${name ? ', ' + name : ''}! Your profile is ${data.profile?.profile_completion || 0}% complete. How can I help you today?`,
+            follow_ups: ['Show me matching jobs', 'Edit my profile', 'My applications']});
+    }
+}
+
+// Check if already authed
+if (document.cookie.includes('applicant_session')) {
+    document.getElementById('authModal').classList.add('hidden');
+    fetch('/api/applicant/profile').then(r => r.ok ? r.json() : null).then(p => {
+        if (p) {
+            applicantId = p.applicant_id;
+            const phase = p.onboarding_phase || 1;
+            if (phase <= 2) {
+                addAssistantMessage({type: 'applicant', step: 'chat_response',
+                    message: `Welcome back, ${p.full_name || 'there'}! Tell me about yourself — what kind of job are you looking for?`});
+            } else {
+                addAssistantMessage({type: 'applicant', step: 'welcome',
+                    message: `Welcome back, ${p.full_name || 'there'}! Your profile is ${p.profile_completion || 0}% complete.`,
+                    follow_ups: ['Show me matching jobs', 'Edit my profile', 'My applications']});
+            }
+        } else {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+    });
+}
+
+// ── Chat ──
+function addUserMessage(text) {
+    const area = document.getElementById('chatArea');
+    area.innerHTML += `<div class="message msg-user"><div class="bubble">${esc(text)}</div></div>`;
+    area.scrollTop = area.scrollHeight;
+}
+
+function addAssistantMessage(data) {
+    const area = document.getElementById('chatArea');
+    const html = renderResponse(data);
+    area.innerHTML += `<div class="message msg-assistant"><div class="bubble">${html}</div></div>`;
+    area.scrollTop = area.scrollHeight;
+}
+
+function addThinking() {
+    const area = document.getElementById('chatArea');
+    area.innerHTML += `<div class="message msg-assistant" id="thinking"><div class="bubble"><span class="spinner"></span> Thinking...</div></div>`;
+    area.scrollTop = area.scrollHeight;
+}
+
+function removeThinking() {
+    const el = document.getElementById('thinking');
+    if (el) el.remove();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    selectedConfirmationSkills.clear();
+
+    addUserMessage(msg);
+    conversationHistory.push({role: 'user', content: msg});
+    addThinking();
+
+    try {
+        const res = await fetch('/api/applicant/query', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: msg, conversation_history: conversationHistory}),
+        });
+        removeThinking();
+        const data = await res.json();
+        conversationHistory.push({role: 'assistant', content: JSON.stringify(data)});
+        addAssistantMessage(data);
+    } catch (e) {
+        removeThinking();
+        addAssistantMessage({type: 'error', message: 'Something went wrong. Please try again.'});
+    }
+}
+
+function sendFollowUp(text) {
+    document.getElementById('msgInput').value = text;
+    sendMessage();
+}
+
+// ── Resume Upload ──
+async function uploadResume() {
+    const fileInput = document.getElementById('resumeFileInput');
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please upload a PDF file.');
+        fileInput.value = '';
+        return;
+    }
+
+    const btn = document.getElementById('uploadBtn');
+    btn.classList.add('uploading');
+    addUserMessage(`Uploading resume: ${file.name}`);
+    addThinking();
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/applicant/profile/resume/upload', {
+            method: 'POST',
+            body: formData,
+        });
+        removeThinking();
+        const data = await res.json();
+        if (res.ok) {
+            addAssistantMessage(data);
+        } else {
+            addAssistantMessage({type: 'error', message: data.detail || 'Resume upload failed.'});
+        }
+    } catch (e) {
+        removeThinking();
+        addAssistantMessage({type: 'error', message: 'Failed to upload resume. Please try again.'});
+    }
+
+    btn.classList.remove('uploading');
+    fileInput.value = '';
+}
+
+function renderResumeConfirmation(data) {
+    const status = data.resume_status || {};
+    const extracted = data.extracted_data || {};
+    const statusCls = status.extraction_method === 'failed' ? 'failed' : 'success';
+    const statusText = status.extraction_method === 'failed' ? 'Extraction Failed' : 'Parsed';
+
+    let html = `<div class="resume-card">
+        <h3>Resume Upload</h3>
+        <div style="margin-bottom:0.5rem">
+            <span class="resume-status ${statusCls}">${statusText}</span>
+            <span style="font-size:0.8rem;color:var(--text2);margin-left:0.5rem">${esc(status.file_path || '')}</span>
+        </div>`;
+
+    // Profile fields
+    const profile = extracted.profile || {};
+    const profileKeys = Object.keys(profile);
+    if (profileKeys.length) {
+        html += '<h3 style="margin-top:0.75rem">Profile</h3>';
+        profileKeys.forEach(key => {
+            const field = profile[key];
+            html += `<div class="resume-field"><label>${formatLabel(key)}</label><span>${esc(String(field.value || ''))}</span></div>`;
+        });
+    }
+
+    // Skills
+    const skills = (extracted.skills || {}).values || [];
+    if (skills.length) {
+        html += '<h3 style="margin-top:0.75rem">Skills</h3><div style="display:flex;flex-wrap:wrap;gap:0.3rem">';
+        skills.forEach(s => {
+            html += `<span class="skill-tag skill-matched">${esc(s.skill_name || s.name || '')}</span>`;
+        });
+        html += '</div>';
+    }
+
+    // Education
+    const education = (extracted.education || {}).values || [];
+    if (education.length) {
+        html += '<h3 style="margin-top:0.75rem">Education</h3>';
+        education.forEach(e => {
+            html += `<div class="resume-field"><label>${esc(e.institution || '')}</label><span>${esc(e.degree || '')} ${esc(e.field_of_study || '')}</span></div>`;
+        });
+    }
+
+    // Experience
+    const experience = (extracted.experience || {}).values || [];
+    if (experience.length) {
+        html += '<h3 style="margin-top:0.75rem">Experience</h3>';
+        experience.forEach(e => {
+            html += `<div class="resume-field"><label>${esc(e.company_name || e.company || '')}</label><span>${esc(e.role_title || e.role || '')} ${e.is_current ? '(Current)' : ''}</span></div>`;
+        });
+    }
+
+    // Action buttons
+    html += `<div class="btn-group" style="margin-top:1rem">
+        <button class="btn btn-primary" onclick="saveResumeData()">Save to Profile</button>
+        <button class="btn btn-outline" onclick="addAssistantMessage({type:'applicant', step:'chat_response', message:'Resume data discarded. You can continue filling your profile through chat.'})">Discard</button>
+    </div>`;
+
+    html += '</div>';
+    return html;
+}
+
+// Store the last extracted data for saving
+let lastResumeExtracted = null;
+
+function renderResumeUploadResult(data) {
+    // Fallback when extraction failed
+    const status = data.resume_status || {};
+    let html = `<div class="resume-card">
+        <h3>Resume Saved</h3>
+        <div style="margin-bottom:0.5rem">
+            <span class="resume-status ${status.extraction_method === 'failed' ? 'failed' : 'success'}">${status.extraction_method === 'failed' ? 'Could not read' : 'Saved'}</span>
+            <span style="font-size:0.8rem;color:var(--text2);margin-left:0.5rem">${esc(status.file_path || '')}</span>
+        </div>
+        <p style="font-size:0.85rem;color:var(--text2)">Your resume file is stored and will be attached to applications.</p>
+    </div>`;
+
+    if (data.questions && data.questions.length) {
+        html += '<div style="margin-top:0.5rem">';
+        data.questions.forEach(q => {
+            html += `<p style="font-size:0.85rem;margin:0.3rem 0;color:var(--text2)">${esc(q.text)}</p>`;
+        });
+        html += '</div>';
+    }
+    return html;
+}
+
+async function saveResumeData() {
+    if (!lastResumeExtracted) return;
+
+    const payload = {
+        profile: {},
+        skills: [],
+        education: [],
+        experience: [],
+    };
+
+    // Flatten profile fields
+    const profile = lastResumeExtracted.profile || {};
+    for (const [key, field] of Object.entries(profile)) {
+        if (field.value) payload.profile[key] = field.value;
+    }
+
+    // Skills
+    const skills = (lastResumeExtracted.skills || {}).values || [];
+    skills.forEach(s => {
+        payload.skills.push({
+            skill_name: s.skill_name || s.name || '',
+            proficiency_level: s.proficiency_level || 'intermediate',
+            years_of_experience: s.years_of_experience || 0,
+        });
+    });
+
+    // Education
+    const edu = (lastResumeExtracted.education || {}).values || [];
+    edu.forEach(e => payload.education.push(e));
+
+    // Experience
+    const exp = (lastResumeExtracted.experience || {}).values || [];
+    exp.forEach(e => payload.experience.push(e));
+
+    try {
+        const res = await fetch('/api/applicant/profile/confirm', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+            addAssistantMessage({type: 'applicant', step: 'chat_response',
+                message: 'Resume data saved to your profile! Your profile has been updated with the extracted information.'});
+        } else {
+            const err = await res.json();
+            addAssistantMessage({type: 'error', message: err.detail || 'Failed to save resume data.'});
+        }
+    } catch (e) {
+        addAssistantMessage({type: 'error', message: 'Failed to save. Please try again.'});
+    }
+
+    lastResumeExtracted = null;
+}
+
+// ── Rendering ──
+function renderResponse(data) {
+    if (!data) return '';
+    const step = data.step || '';
+    let html = '';
+
+    // Message text
+    if (data.message) {
+        html += `<p style="margin-bottom:0.75rem">${esc(data.message)}</p>`;
+    }
+
+    // ── Form Building (Phase 1-2) ──
+    if (step === 'form_building' && data.form_state) {
+        html += renderFormProgress(data.form_state, data.progress);
+    }
+
+    // ── Skill Confirmation (Phase 3 — before showing jobs) ──
+    if (step === 'skill_confirmation') {
+        html += renderSkillConfirmation(data);
+    }
+
+    // ── Resume parsed confirmation ──
+    if (step === 'confirm_data' && data.extracted_data) {
+        lastResumeExtracted = data.extracted_data;
+        html += renderResumeConfirmation(data);
+    }
+
+    // ── Resume upload result (extraction failed) ──
+    if (step === 'resume_upload_result') {
+        html += renderResumeUploadResult(data);
+    }
+
+    // ── Job Results with eligibility gate (Phase 3+) ──
+    if (step === 'job_results') {
+        if (data.profile_summary) {
+            html += renderProfileSummary(data.profile_summary, data.progress);
+        }
+        if (data.eligible_jobs?.length) {
+            html += `<div class="section-header" style="color:var(--green)">
+                <span>Jobs You Can Apply To</span>
+                <span class="badge" style="background:rgba(34,197,94,0.15);color:var(--green)">${data.eligible_jobs.length}</span>
+            </div>`;
+            html += data.eligible_jobs.map(renderEligibleJobCard).join('');
+        }
+        if (data.blocked_jobs?.length) {
+            html += `<div class="section-header" style="color:var(--red);margin-top:1.5rem">
+                <span>Jobs Requiring More Skills</span>
+                <span class="badge" style="background:rgba(239,68,68,0.15);color:var(--red)">${data.blocked_jobs.length}</span>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem">You need all required skills to apply. Learn the missing ones and come back!</p>`;
+            html += data.blocked_jobs.map(renderBlockedJobCard).join('');
+        }
+        if (!data.eligible_jobs?.length && !data.blocked_jobs?.length) {
+            html += '<p style="color:var(--text2)">No matching jobs found. Try updating your profile with more skills.</p>';
+        }
+    }
+
+    // ── Application Blocked ──
+    if (step === 'application_blocked') {
+        html += renderApplicationBlocked(data);
+    }
+
+    // ── Legacy: profile_progress ──
+    if (step === 'profile_progress' || step === 'profile_complete_with_results') {
+        html += renderProfileSummary(data.profile_summary, data.progress);
+    }
+
+    // ── Legacy: job_discovery (from old flow) ──
+    if (step === 'job_discovery' && data.jobs?.length) {
+        html += `<h3 style="margin-top:1rem;margin-bottom:0.5rem">Matching Jobs (${data.jobs.length})</h3>`;
+        html += data.jobs.map(renderJobCard).join('');
+    }
+
+    // ── Skill gap (if present in response) ──
+    if (data.skill_gap) {
+        html += renderSkillGap(data.skill_gap);
+    }
+
+    // Application preview
+    if (step === 'application_preview') {
+        html += renderApplicationPreview(data);
+    }
+
+    // Interview prep
+    if (step === 'interview_prep' && data.prep) {
+        html += renderInterviewPrep(data.prep);
+    }
+
+    // Tracking dashboard
+    if (step === 'tracking_dashboard' && data.applications) {
+        html += renderTrackingDashboard(data.applications);
+    }
+
+    // Withdraw picker
+    if (step === 'withdraw_picker' && data.applications) {
+        html += renderWithdrawPicker(data.applications);
+    }
+
+    // Profile view
+    if (step === 'show_profile' && data.profile) {
+        html += renderProfileView(data.profile, true);
+    }
+
+    // Edit profile
+    if (step === 'edit_profile' && data.profile) {
+        html += renderProfileView(data.profile, true);
+    }
+
+    // Progress bar (always at bottom if present, except for form_building which shows its own)
+    if (data.progress && step !== 'form_building') {
+        html += `<div class="progress-bar" style="margin-top:0.75rem"><div class="progress-fill" style="width:${data.progress.percentage || 0}%"></div></div>
+                 <small style="color:var(--text2)">${data.progress.percentage || 0}% complete</small>`;
+    }
+
+    // Follow-ups
+    if (data.follow_ups?.length) {
+        html += `<div class="follow-ups">${data.follow_ups.map(f =>
+            `<button class="follow-up-btn" onclick="sendFollowUp('${esc(f)}')">${esc(f)}</button>`
+        ).join('')}</div>`;
+    }
+
+    return html;
+}
+
+
+// ── Form Progress Card (Phase 1-2) ──
+function renderFormProgress(form, progress) {
+    const pct = progress?.percentage || 0;
+    const fields = [
+        {key: 'full_name', label: 'Name', val: form.full_name},
+        {key: 'desired_role', label: 'Desired Role', val: form.desired_role},
+        {key: 'skills', label: 'Skills', val: form.skills?.length ? form.skills.join(', ') : null},
+        {key: 'experience_years', label: 'Experience', val: form.experience_years != null ? form.experience_years + ' years' : null},
+        {key: 'education', label: 'Education', val: form.education ? `${form.education.institution || ''} ${form.education.degree || ''}`.trim() : null},
+        {key: 'current_experience', label: 'Current Work', val: form.current_experience ? `${form.current_experience.role || ''} at ${form.current_experience.company || ''}`.trim() : null},
+        {key: 'location_preference', label: 'Location', val: form.location_preference?.length ? form.location_preference.join(', ') : null},
+        {key: 'salary_expectation', label: 'Salary', val: form.salary_expectation ? formatSalary(form.salary_expectation) : null},
+        {key: 'job_type_preference', label: 'Job Type', val: form.job_type_preference ? form.job_type_preference.replace(/_/g, ' ') : null},
+        {key: 'phone', label: 'Phone', val: form.phone},
+        {key: 'desired_department', label: 'Department', val: form.desired_department},
+        {key: 'willing_to_relocate', label: 'Relocate', val: form.willing_to_relocate != null ? (form.willing_to_relocate ? 'Yes' : 'No') : null},
+        {key: 'linkedin_url', label: 'LinkedIn', val: form.linkedin_url},
+        {key: 'github_url', label: 'GitHub', val: form.github_url},
+    ];
+
+    let html = `<div class="card">
+        <h3>Your Application Form</h3>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <small style="color:var(--text2)">${pct}% complete</small>
+        <div style="margin-top:0.75rem">`;
+
+    fields.forEach(f => {
+        const filled = !!f.val;
+        html += `<div class="form-field">
+            <span class="field-status ${filled ? 'field-filled' : 'field-empty'}">${filled ? '\u2713' : '\u25CB'}</span>
+            <span class="field-label">${f.label}</span>
+            <span class="field-value" style="${filled ? '' : 'color:var(--text2);font-style:italic'}">${filled ? esc(f.val) : 'Not yet provided'}</span>
+        </div>`;
+    });
+
+    html += '</div></div>';
+    return html;
+}
+
+
+// ── Eligible Job Card (can apply) ──
+function renderEligibleJobCard(job) {
+    const score = job.match_score || 0;
+    const cls = score >= 70 ? 'match-high' : score >= 40 ? 'match-mid' : 'match-low';
+    let html = `<div class="job-card">
+        <h4>${esc(job.title)}</h4>
+        <div class="company">${esc(job.company)} ${job.department ? '— ' + esc(job.department) : ''} ${(job.location || []).length ? '— ' + (job.location || []).join(', ') : ''}</div>
+        <span class="match ${cls}">${score}% match</span>
+        <div style="margin-top:0.4rem">
+            ${(job.matched_required || []).map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join('')}
+            ${(job.matched_preferred || []).map(s => `<span class="skill-tag skill-preferred">${esc(s)}</span>`).join('')}
+        </div>`;
+
+    // YouTube suggestions for preferred gaps
+    if (job.youtube_suggestions?.length) {
+        html += `<div style="margin-top:0.5rem;padding:0.5rem;background:var(--bg);border-radius:8px">
+            <p style="font-size:0.8rem;font-weight:600;color:var(--blue);margin-bottom:0.3rem">Learn preferred skills:</p>`;
+        job.youtube_suggestions.forEach(yt => {
+            html += `<div style="margin-bottom:0.3rem">
+                <strong style="font-size:0.8rem">${esc(yt.skill)}</strong>`;
+            (yt.playlists || []).slice(0, 1).forEach(p => {
+                html += `<a href="${esc(p.url)}" target="_blank" class="yt-link">&#127916; ${esc(p.title)}</a>`;
+            });
+            (yt.videos || []).slice(0, 1).forEach(v => {
+                html += `<a href="${esc(v.url)}" target="_blank" class="yt-link">&#9654; ${esc(v.title)}</a>`;
+            });
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    html += `<p style="font-size:0.8rem;color:var(--text2);margin-top:0.4rem">${esc((job.description || '').substring(0, 150))}...</p>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="sendFollowUp('apply to job #${job.job_id}')">Apply</button>
+            <button class="btn btn-outline" onclick="saveJob(${job.job_id})">Save</button>
+        </div>
+    </div>`;
+    return html;
+}
+
+
+// ── Blocked Job Card (cannot apply) ──
+function renderBlockedJobCard(job) {
+    const score = job.match_score || 0;
+    const missing = job.missing_required || [];
+    let html = `<div class="job-card job-card-blocked">
+        <h4>${esc(job.title)}</h4>
+        <div class="company">${esc(job.company)} ${job.department ? '— ' + esc(job.department) : ''} ${(job.location || []).length ? '— ' + (job.location || []).join(', ') : ''}</div>
+        <span class="match match-low">${score}% match</span>
+        <div class="block-badge">Missing: ${missing.map(s => esc(s)).join(', ')}</div>
+        <div style="margin-top:0.4rem">
+            ${(job.matched_required || []).map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join('')}
+            ${missing.map(s => `<span class="skill-tag skill-missing">${esc(s)}</span>`).join('')}
+        </div>
+        <p style="font-size:0.8rem;color:var(--text2);margin-top:0.4rem">${esc((job.description || '').substring(0, 120))}...</p>
+        <div class="btn-group">
+            <button class="btn btn-disabled" disabled>Cannot Apply</button>
+            <button class="btn btn-outline" onclick="saveJob(${job.job_id})">Save for Later</button>
+        </div>
+    </div>`;
+    return html;
+}
+
+
+// ── Application Blocked Card ──
+function renderApplicationBlocked(data) {
+    let html = `<div class="card" style="border-color:var(--red)">
+        <h3 style="color:var(--red)">Cannot Apply</h3>
+        <p style="font-size:0.9rem;margin-bottom:0.5rem">You're missing required skills for <strong>${esc(data.job?.title || '')}</strong> at ${esc(data.job?.company || '')}:</p>
+        <div style="margin-bottom:0.75rem">
+            ${(data.missing_required || []).map(s => `<span class="skill-tag skill-missing">${esc(s)}</span>`).join(' ')}
+        </div>`;
+
+    if (data.youtube_suggestions?.length) {
+        html += `<h3 style="color:var(--blue);margin-bottom:0.5rem">Learn These Skills</h3>`;
+        data.youtube_suggestions.forEach(yt => {
+            html += `<div style="margin-bottom:0.5rem;padding:0.5rem;background:var(--bg);border-radius:8px">
+                <strong style="font-size:0.9rem">${esc(yt.skill)}</strong>`;
+            (yt.playlists || []).forEach(p => {
+                html += `<a href="${esc(p.url)}" target="_blank" class="yt-link">&#127916; ${esc(p.title)}</a>`;
+            });
+            (yt.videos || []).forEach(v => {
+                html += `<a href="${esc(v.url)}" target="_blank" class="yt-link">&#9654; ${esc(v.title)}</a>`;
+            });
+            html += '</div>';
+        });
+    }
+
+    html += `<p style="font-size:0.85rem;color:var(--text2);margin-top:0.5rem">Learn these skills and try again! You can also explore other jobs that match your current skills.</p>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="sendFollowUp('show me jobs I can apply to')">Find Eligible Jobs</button>
+        </div>
+    </div>`;
+    return html;
+}
+
+
+// ── Skill Confirmation Card ──
+function renderSkillConfirmation(data) {
+    const skills = data.potentially_forgotten_skills || [];
+    if (!skills.length) return '';
+    let html = `<div class="card" style="border-color:var(--yellow)">
+        <h3 style="color:var(--yellow)">Quick Skill Check</h3>
+        <p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.5rem">These skills are commonly required by matching jobs. Just type which ones you know!</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.75rem">`;
+    skills.forEach(s => {
+        html += `<button class="follow-up-btn" onclick="addSkillFromConfirmation('${esc(s)}')" style="border-color:var(--yellow);color:var(--yellow)">${esc(s)}</button>`;
+    });
+    html += `</div>
+        <p style="font-size:0.8rem;color:var(--text2)">Click any skill you know, or just type your answer below. Say "none" or "that's all" if you don't have any of these.</p>
+    </div>`;
+    return html;
+}
+
+
+// ── Profile Summary (read-only) ──
+function renderProfileSummary(summary, progress) {
+    if (!summary) return '';
+    let html = `<div class="card"><h3>Your Profile</h3>`;
+    if (summary.desired_role)     html += `<div class="card-field"><label>Role</label><span>${esc(summary.desired_role)}</span></div>`;
+    if (summary.experience_years != null) html += `<div class="card-field"><label>Experience</label><span>${summary.experience_years} years</span></div>`;
+    if (summary.skills?.length)   html += `<div class="card-field"><label>Skills</label><span>${summary.skills.map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join(' ')}</span></div>`;
+    if (summary.education?.length) html += `<div class="card-field"><label>Education</label><span>${summary.education.map(e => esc(e)).join(', ')}</span></div>`;
+    if (summary.experience?.length) html += `<div class="card-field"><label>Work</label><span>${summary.experience.map(e => esc(e)).join(', ')}</span></div>`;
+    if (summary.location?.length) html += `<div class="card-field"><label>Location</label><span>${summary.location.join(', ')}</span></div>`;
+    if (summary.salary)           html += `<div class="card-field"><label>Salary</label><span>${esc(summary.salary)}</span></div>`;
+    html += `</div>`;
+    return html;
+}
+
+
+// ── Skill Gap ──
+function renderSkillGap(analysis) {
+    let html = `<div class="card"><h3>Skill Gap Analysis</h3>
+        <div class="progress-bar"><div class="progress-fill" style="width:${analysis.overall_readiness || 50}%"></div></div>
+        <p style="font-size:0.85rem;color:var(--text2);margin:0.3rem 0">Overall readiness: ${analysis.overall_readiness || 50}%</p>`;
+
+    if (analysis.strengths?.length) {
+        html += `<p style="margin-top:0.5rem;font-weight:600;color:var(--green)">Strengths</p>
+                 <p style="font-size:0.85rem">${analysis.strengths.map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join(' ')}</p>`;
+    }
+
+    if (analysis.critical_gaps?.length) {
+        html += `<p style="margin-top:0.75rem;font-weight:600;color:var(--red)">Critical Gaps</p>`;
+        analysis.critical_gaps.forEach((gap, i) => {
+            html += `<div style="margin:0.4rem 0;padding:0.5rem;background:var(--bg);border-radius:8px">
+                <strong>#${i+1} ${esc(gap.skill)}</strong> <span style="color:var(--text2);font-size:0.8rem">— ${esc(gap.why || '')}</span>`;
+            const yt = gap.youtube;
+            if (yt && (yt.playlists?.length || yt.videos?.length)) {
+                html += '<div style="margin-top:0.3rem">';
+                (yt.playlists || []).forEach(p => {
+                    html += `<a href="${esc(p.url)}" target="_blank" class="yt-link">&#127916; ${esc(p.title)}</a>`;
+                });
+                (yt.videos || []).forEach(v => {
+                    html += `<a href="${esc(v.url)}" target="_blank" class="yt-link">&#9654; ${esc(v.title)}</a>`;
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+    }
+
+    html += '</div>';
+    return html;
+}
+
+
+// ── Job Card (legacy, used by job_discovery) ──
+function renderJobCard(job) {
+    const score = job.match_score || 0;
+    const cls = score >= 70 ? 'match-high' : score >= 40 ? 'match-mid' : 'match-low';
+    return `<div class="job-card">
+        <h4>${esc(job.title)}</h4>
+        <div class="company">${esc(job.company)} — ${esc(job.department || '')} — ${(job.location || []).join(', ')}</div>
+        <span class="match ${cls}">${score}% match</span>
+        <div style="margin-top:0.4rem">
+            ${(job.matched_skills || []).map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join('')}
+            ${(job.missing_skills || []).map(s => `<span class="skill-tag skill-missing">${esc(s)}</span>`).join('')}
+        </div>
+        <p style="font-size:0.8rem;color:var(--text2);margin-top:0.4rem">${esc((job.description || '').substring(0, 150))}...</p>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="sendFollowUp('apply to job #${job.job_id}')">Apply</button>
+            <button class="btn btn-outline" onclick="saveJob(${job.job_id})">Save</button>
+        </div>
+    </div>`;
+}
+
+
+// ── Application Preview ──
+function renderApplicationPreview(data) {
+    return `<div class="card">
+        <h3>${esc(data.job?.title || '')} at ${esc(data.job?.company || '')}</h3>
+        <span class="match ${data.match_score >= 70 ? 'match-high' : 'match-mid'}">${data.match_score || 0}% match</span>
+        <div style="margin-top:0.5rem">
+            ${(data.matched_skills || []).map(s => `<span class="skill-tag skill-matched">${esc(s)}</span>`).join('')}
+            ${(data.missing_skills || []).map(s => `<span class="skill-tag skill-missing">${esc(s)}</span>`).join('')}
+        </div>
+        <h3 style="margin-top:0.75rem">Cover Letter</h3>
+        <textarea id="coverLetter" style="width:100%;min-height:150px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem;color:var(--text);font-family:inherit;font-size:0.85rem;resize:vertical">${esc(data.cover_letter || '')}</textarea>
+        <div class="btn-group">
+            <button class="btn btn-success" onclick="submitApplication(${data.job?.job_id}, ${data.match_score || 0})">Submit Application</button>
+            <button class="btn btn-outline" onclick="sendFollowUp('revise the cover letter')">Revise</button>
+            <button class="btn btn-danger" onclick="this.closest('.card').remove()">Cancel</button>
+        </div>
+    </div>`;
+}
+
+
+// ── Interview Prep ──
+function renderInterviewPrep(prep) {
+    let html = '<div class="card"><h3>Interview Preparation</h3>';
+    if (prep.company_research) html += `<p style="font-size:0.85rem;margin-bottom:0.5rem">${esc(prep.company_research)}</p>`;
+    if (prep.role_analysis) html += `<p style="font-size:0.85rem;color:var(--text2);margin-bottom:0.75rem">${esc(prep.role_analysis)}</p>`;
+    if (prep.questions?.length) {
+        html += '<h3 style="margin-top:0.5rem">Practice Questions</h3>';
+        prep.questions.forEach((q, i) => {
+            html += `<div style="margin:0.4rem 0;padding:0.5rem;background:var(--bg);border-radius:8px">
+                <strong>Q${i+1}:</strong> ${esc(q.question)}
+                <details style="margin-top:0.3rem"><summary style="cursor:pointer;color:var(--accent);font-size:0.8rem">Show tip</summary>
+                <p style="font-size:0.8rem;color:var(--text2);margin-top:0.3rem">${esc(q.tip || '')}</p></details>
+            </div>`;
+        });
+    }
+    html += '</div>';
+    return html;
+}
+
+
+// ── Tracking Dashboard ──
+function renderTrackingDashboard(applications) {
+    if (!applications.length) return '<p style="color:var(--text2)">No applications yet.</p>';
+    let html = '<div class="card"><h3>Your Applications</h3><table style="width:100%;font-size:0.85rem;border-collapse:collapse">';
+    html += '<tr style="color:var(--text2);border-bottom:1px solid var(--border)"><th style="text-align:left;padding:0.4rem">Job</th><th>Company</th><th>Status</th><th>Match</th><th>Applied</th><th></th></tr>';
+    applications.forEach(a => {
+        const canWithdraw = a.status && !['withdrawn', 'rejected', 'accepted'].includes(a.status);
+        const statusColor = a.status === 'withdrawn' ? 'var(--text-muted)' : a.status === 'rejected' ? 'var(--red)' : a.status === 'accepted' ? 'var(--green)' : 'var(--text)';
+        html += `<tr style="border-bottom:1px solid var(--border-light)">
+            <td style="padding:0.4rem">${esc(a.job_title || '')}</td>
+            <td>${esc(a.company || '')}</td>
+            <td><span style="text-transform:capitalize;color:${statusColor}">${esc(a.status || '')}</span></td>
+            <td>${a.match_score || '-'}%</td>
+            <td style="color:var(--text2)">${a.applied_at ? new Date(a.applied_at).toLocaleDateString() : '-'}</td>
+            <td>${canWithdraw ? `<button class="btn btn-danger" style="padding:0.25rem 0.6rem;font-size:0.75rem" onclick="withdrawApplication(${a.application_id})">Withdraw</button>` : ''}</td>
+        </tr>`;
+    });
+    html += '</table></div>';
+    return html;
+}
+
+// ── Withdraw Picker (when user says "withdraw" without specifying) ──
+function renderWithdrawPicker(applications) {
+    let html = '<div class="card"><h3>Withdraw Application</h3>';
+    applications.forEach(a => {
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border-light)">
+            <div>
+                <strong style="font-size:0.9rem">${esc(a.job_title || '')}</strong>
+                <span style="color:var(--text2);font-size:0.85rem"> at ${esc(a.company || '')}</span>
+                <span style="color:var(--text-muted);font-size:0.8rem;margin-left:0.5rem;text-transform:capitalize">${esc(a.status || '')}</span>
+            </div>
+            <button class="btn btn-danger" style="padding:0.3rem 0.8rem;font-size:0.8rem" onclick="withdrawApplication(${a.application_id})">Withdraw</button>
+        </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+async function withdrawApplication(appId) {
+    if (!confirm('Are you sure you want to withdraw this application?')) return;
+    try {
+        const res = await fetch(`/api/applicant/applications/${appId}/withdraw`, {method: 'POST'});
+        const data = await res.json();
+        if (res.ok) {
+            addAssistantMessage({type: 'applicant', step: 'chat_response',
+                message: `Application #${appId} has been withdrawn.`,
+                follow_ups: ['My applications', 'Find more jobs']});
+        } else {
+            addAssistantMessage({type: 'error', message: data.detail || 'Failed to withdraw.'});
+        }
+    } catch (e) {
+        addAssistantMessage({type: 'error', message: 'Failed to withdraw. Please try again.'});
+    }
+}
+
+
+// ── Profile View ──
+function renderProfileView(profile, editable) {
+    let html = `<div class="card"><h3>My Profile (${profile.profile_completion || 0}% complete)</h3>`;
+
+    // Basic info
+    const basicFields = [
+        {key: 'full_name', label: 'Name'},
+        {key: 'email', label: 'Email'},
+        {key: 'phone', label: 'Phone'},
+        {key: 'desired_role', label: 'Desired Role'},
+        {key: 'desired_department', label: 'Department'},
+        {key: 'experience_years', label: 'Experience', fmt: v => v + ' years'},
+        {key: 'current_company', label: 'Company'},
+        {key: 'current_role', label: 'Current Role'},
+    ];
+    basicFields.forEach(f => {
+        const val = profile[f.key];
+        if (val != null) {
+            const display = f.fmt ? f.fmt(val) : String(val);
+            html += `<div class="card-field"><label>${esc(f.label)}</label><span>${esc(display)}</span></div>`;
+        }
+    });
+
+    // Preferences
+    const locPref = profile.location_preference || [];
+    if (locPref.length) html += `<div class="card-field"><label>Location</label><span>${esc(locPref.join(', '))}</span></div>`;
+    if (profile.willing_to_relocate != null) html += `<div class="card-field"><label>Relocate</label><span>${profile.willing_to_relocate ? 'Yes' : 'No'}</span></div>`;
+    if (profile.salary_min) {
+        const salMin = profile.salary_min >= 100000 ? (profile.salary_min / 100000).toFixed(1) + ' LPA' : profile.salary_min;
+        const salMax = profile.salary_max ? (profile.salary_max >= 100000 ? (profile.salary_max / 100000).toFixed(1) + ' LPA' : profile.salary_max) : '?';
+        html += `<div class="card-field"><label>Salary</label><span>${salMin} - ${salMax}</span></div>`;
+    }
+    const jtp = profile.job_type_preference || [];
+    if (jtp.length) html += `<div class="card-field"><label>Job Type</label><span>${esc(jtp.join(', ').replace(/_/g, ' '))}</span></div>`;
+
+    // Links
+    if (profile.linkedin_url) html += `<div class="card-field"><label>LinkedIn</label><span><a href="${esc(profile.linkedin_url)}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(profile.linkedin_url)}</a></span></div>`;
+    if (profile.github_url) html += `<div class="card-field"><label>GitHub</label><span><a href="${esc(profile.github_url)}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(profile.github_url)}</a></span></div>`;
+    if (profile.portfolio_url) html += `<div class="card-field"><label>Portfolio</label><span><a href="${esc(profile.portfolio_url)}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(profile.portfolio_url)}</a></span></div>`;
+
+    // Skills
+    if (profile.skills?.length) {
+        html += '<h3 style="margin-top:1rem">Skills</h3><div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem">';
+        profile.skills.forEach(s => {
+            html += `<span class="skill-tag skill-matched" style="padding:0.25rem 0.6rem">${esc(s.skill_name)} <span style="opacity:0.7;font-size:0.7rem">${esc(s.proficiency_level)}</span></span>`;
+        });
+        html += '</div>';
+    }
+
+    // Education
+    if (profile.education?.length) {
+        html += '<h3 style="margin-top:1rem">Education</h3>';
+        profile.education.forEach(e => {
+            html += `<div style="padding:0.4rem 0.6rem;background:var(--bg);border-radius:8px;margin:0.25rem 0;font-size:0.85rem">
+                <strong>${esc(e.institution || '')}</strong>`;
+            if (e.degree || e.field_of_study) html += `<br><span style="color:var(--text2)">${esc(e.degree || '')} ${e.field_of_study ? 'in ' + esc(e.field_of_study) : ''}</span>`;
+            if (e.start_year || e.end_year) html += `<br><span style="color:var(--text-muted);font-size:0.8rem">${e.start_year || '?'} - ${e.end_year || 'Present'}</span>`;
+            html += '</div>';
+        });
+    }
+
+    // Experience
+    if (profile.experience?.length) {
+        html += '<h3 style="margin-top:1rem">Experience</h3>';
+        profile.experience.forEach(e => {
+            html += `<div style="padding:0.4rem 0.6rem;background:var(--bg);border-radius:8px;margin:0.25rem 0;font-size:0.85rem">
+                <strong>${esc(e.role_title || '')}</strong> at ${esc(e.company_name || '')}${e.is_current ? ' <span style="color:var(--green);font-size:0.75rem">(Current)</span>' : ''}`;
+            if (e.start_date || e.end_date) html += `<br><span style="color:var(--text-muted);font-size:0.8rem">${e.start_date || '?'} - ${e.end_date || 'Present'}</span>`;
+            if (e.description) html += `<br><span style="color:var(--text2)">${esc(e.description)}</span>`;
+            html += '</div>';
+        });
+    }
+
+    // Edit button
+    if (editable) {
+        html += `<div class="btn-group" style="margin-top:1rem">
+            <button class="btn btn-primary" onclick="sendFollowUp('I want to edit my profile')">Edit Profile</button>
+            <button class="btn btn-outline" onclick="sendFollowUp('Find jobs')">Find Jobs</button>
+        </div>`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
+
+// ── Helpers ──
+function formatSalary(sal) {
+    if (!sal) return '';
+    const min = sal.min ? (sal.min >= 100000 ? (sal.min / 100000).toFixed(1) + ' LPA' : sal.min) : '?';
+    const max = sal.max ? (sal.max >= 100000 ? (sal.max / 100000).toFixed(1) + ' LPA' : sal.max) : '?';
+    return `${min} - ${max}`;
+}
+
+async function saveJob(jobId) {
+    await fetch(`/api/applicant/jobs/${jobId}/save`, {method: 'POST'});
+    alert('Job saved!');
+}
+
+async function submitApplication(jobId, matchScore) {
+    const coverLetter = document.getElementById('coverLetter')?.value || '';
+    const res = await fetch(`/api/applicant/jobs/${jobId}/apply`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({job_id: jobId, cover_letter: coverLetter, match_score: matchScore}),
+    });
+    const data = await res.json();
+    if (res.ok) {
+        addAssistantMessage({type: 'applicant', step: 'success', message: 'Application submitted successfully!',
+            follow_ups: ['Prepare for interview', 'Find more jobs', 'My applications']});
+    } else {
+        addAssistantMessage({type: 'error', message: data.detail || 'Failed to submit application'});
+    }
+}
+
+function showProfile() {
+    sendFollowUp('show my profile');
+}
+
+function addSkillFromConfirmation(skill) {
+    const input = document.getElementById('msgInput');
+
+    if (selectedConfirmationSkills.has(skill)) {
+        // Deselect — remove skill
+        selectedConfirmationSkills.delete(skill);
+        event.target.style.opacity = '1';
+        event.target.style.borderColor = 'var(--yellow)';
+        event.target.style.color = 'var(--yellow)';
+        event.target.textContent = skill;
+    } else {
+        // Select — add skill
+        selectedConfirmationSkills.add(skill);
+        event.target.style.opacity = '0.7';
+        event.target.style.borderColor = 'var(--green)';
+        event.target.style.color = 'var(--green)';
+        event.target.textContent = '\u2713 ' + skill;
+    }
+
+    // Rebuild input from selected skills
+    if (selectedConfirmationSkills.size > 0) {
+        input.value = 'I also know ' + Array.from(selectedConfirmationSkills).join(', ');
+    } else {
+        input.value = '';
+    }
+}
+
+async function resetProfile() {
+    if (!confirm('Reset your profile? This will clear all your data and start fresh.')) return;
+    const res = await fetch('/api/applicant/profile/reset', {method: 'POST'});
+    if (res.ok) {
+        conversationHistory = [];
+        document.getElementById('chatArea').innerHTML = '';
+        addAssistantMessage({type: 'applicant', step: 'chat_response',
+            message: 'Profile reset! Tell me — are you looking for a job?'});
+    }
+}
+
+function formatLabel(key) {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+.env
+.git
+.gitignore
+.claude/
+.dockerignore
+__pycache__/
+*.py[cod]
+generated/
+pgdata/
+*.md
+.vscode/
+.idea/
+venv/
+.venv/

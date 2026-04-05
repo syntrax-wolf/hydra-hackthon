@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon — Business Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0f172a;
+    --primary-light: #1e293b;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-soft: #dbeafe;
+    --positive: #10b981;
+    --positive-bg: #ecfdf5;
+    --negative: #ef4444;
+    --negative-bg: #fef2f2;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --muted: #94a3b8;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Main scrollable area ── */
+  .main-area { flex: 1; overflow-y: auto; padding: 32px 20px 20px; }
+  .main-area .inner { max-width: 820px; margin: 0 auto; }
+
+  /* ── Header ── */
+  header { text-align: center; margin-bottom: 32px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .brand-icon {
+    width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 16px;
+  }
+  header h1 { font-size: 24px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+  header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; font-weight: 400; }
+
+  /* ── Welcome section ── */
+  .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 36vh; }
+  .welcome h2 { font-size: 20px; color: var(--text-secondary); margin-bottom: 20px; font-weight: 500; }
+  .welcome .chips { justify-content: center; max-width: 640px; }
+
+  /* ── Bottom input bar ── */
+  .query-section {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.04);
+    flex-shrink: 0;
+  }
+  .query-inner { max-width: 820px; margin: 0 auto; }
+  .input-row { display: flex; gap: 10px; }
+  .input-row input {
+    flex: 1; padding: 12px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px; font-family: inherit;
+    outline: none; transition: all .2s;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .input-row input::placeholder { color: var(--text-muted); }
+  .input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: white; }
+  .input-row button {
+    padding: 12px 28px;
+    background: var(--accent);
+    color: white; border: none;
+    border-radius: var(--radius);
+    font-size: 14px; font-weight: 600;
+    font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    transition: all .2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .input-row button:hover { background: var(--accent-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .input-row button:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── Context bar ── */
+  .context-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; background: var(--accent-soft);
+    border: 1px solid #bfdbfe; border-radius: 8px;
+    margin-bottom: 12px; font-size: 13px; color: var(--accent);
+  }
+  .context-bar .clear-btn {
+    margin-left: auto; background: white; border: 1px solid #bfdbfe;
+    border-radius: 6px; padding: 4px 12px; font-size: 12px;
+    color: var(--accent); cursor: pointer; font-family: inherit; font-weight: 500;
+  }
+  .context-bar .clear-btn:hover { background: var(--accent); color: white; }
+
+  /* ── Chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer; transition: all .2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Results ── */
+  .results { display: none; }
+  .results.visible { display: block; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+  .card h2 {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .summary-text { font-size: 15px; line-height: 1.7; color: var(--text); }
+
+  /* ── Findings ── */
+  .findings { list-style: none; }
+  .finding {
+    padding: 14px 16px; margin-bottom: 8px;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--muted);
+    background: var(--border-light);
+    transition: transform .15s;
+  }
+  .finding:hover { transform: translateX(2px); }
+  .finding.positive { border-left-color: var(--positive); background: var(--positive-bg); }
+  .finding.negative { border-left-color: var(--negative); background: var(--negative-bg); }
+  .finding.warning { border-left-color: var(--warning); background: var(--warning-bg); }
+  .finding .metric { font-weight: 700; font-size: 14px; margin-right: 10px; font-variant-numeric: tabular-nums; }
+  .finding .metric.positive { color: var(--positive); }
+  .finding .metric.negative { color: var(--negative); }
+  .finding .metric.warning { color: var(--warning); }
+  .finding .text { font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+
+  /* ── Recommendations ── */
+  .recs { list-style: none; }
+  .rec {
+    padding: 14px 16px; margin-bottom: 8px;
+    border-radius: var(--radius);
+    background: var(--border-light);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .rec .badge {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 4px 10px; border-radius: 6px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .rec .badge.critical { background: #fecaca; color: var(--negative); }
+  .rec .badge.high { background: #fed7aa; color: #c2410c; }
+  .rec .badge.medium { background: #e0e7ff; color: #4338ca; }
+  .rec .badge.low { background: var(--border-light); color: var(--muted); }
+  .rec .rec-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+  .rec .impact { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+  /* ── Caveats ── */
+  .caveats { font-size: 13px; color: var(--text-muted); line-height: 1.6; list-style: disc; padding-left: 16px; }
+  .caveats li { margin-bottom: 6px; }
+
+  /* ── File/Report section ── */
+  .file-section { text-align: center; }
+  .file-section iframe {
+    width: 100%; height: 600px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 14px;
+  }
+  .download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; background: var(--positive); color: white;
+    text-decoration: none; border-radius: var(--radius);
+    font-weight: 600; font-size: 14px; font-family: inherit;
+    margin-top: 14px; transition: all .2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .download-btn:hover { background: #059669; box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .file-meta { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+  .follow-ups { margin-top: 8px; }
+
+  /* ── Meta bar ── */
+  .meta-bar {
+    display: flex; gap: 20px; justify-content: center;
+    color: var(--text-muted); font-size: 11px;
+    margin-top: 20px; margin-bottom: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Error card ── */
+  .error-card {
+    background: var(--negative-bg);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-lg);
+    padding: 20px; margin-bottom: 16px;
+  }
+  .error-card h2 { color: var(--negative); border-bottom-color: #fecaca; }
+  .error-card p { font-size: 14px; color: #991b1b; word-break: break-word; line-height: 1.5; }
+
+  /* ── Chat bubbles ── */
+  .query-bubble { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+  .query-bubble .bubble {
+    background: var(--primary);
+    color: white; padding: 12px 20px;
+    border-radius: 20px 20px 6px 20px;
+    font-size: 14px; max-width: 70%;
+    line-height: 1.5; font-weight: 500;
+    box-shadow: var(--shadow-sm);
+  }
+  .response-group { margin-bottom: 8px; padding-top: 8px; animation: slideUp .3s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .exchange-divider { border: none; border-top: 1px solid var(--border-light); margin: 28px 0 20px; }
+
+  /* ── Thinking indicator ── */
+  .thinking {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    animation: fadeIn .3s ease;
+    box-shadow: var(--shadow-sm);
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .thinking-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 14px; font-weight: 600; color: var(--primary); }
+  .thinking-steps { display: flex; flex-direction: column; gap: 8px; }
+  .thinking-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); transition: color .3s; }
+  .thinking-step.active { color: var(--text); font-weight: 500; }
+  .thinking-step.done { color: var(--positive); }
+  .thinking-step .icon { width: 18px; text-align: center; flex-shrink: 0; }
+
+  /* ── Onboarding: Email Review Card ── */
+  .onboarding-email-card { border-left: 4px solid var(--accent); }
+  .email-preview {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+  }
+  .email-subject { font-weight: 600; font-size: 14px; margin-bottom: 10px; color: var(--primary); }
+  .email-body { font-size: 14px; line-height: 1.7; color: var(--text-secondary); white-space: pre-wrap; }
+  .email-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-send {
+    padding: 10px 24px; background: var(--positive); color: white;
+    border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-send:hover { background: #059669; }
+  .btn-send:disabled { background: var(--muted); cursor: not-allowed; }
+  .btn-revise {
+    padding: 10px 24px; background: white; color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-revise:hover { background: var(--accent-soft); }
+  .btn-skip {
+    padding: 10px 24px; background: white; color: var(--text-muted);
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-skip:hover { background: var(--border-light); }
+  .revise-input { margin-top: 12px; }
+  .revise-input textarea {
+    width: 100%; min-height: 70px; padding: 12px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14px; font-family: inherit;
+    resize: vertical; outline: none;
+  }
+  .revise-input textarea:focus { border-color: var(--accent); }
+  .revise-input button {
+    margin-top: 8px; padding: 8px 20px; background: var(--accent); color: white;
+    border: none; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* ── Onboarding: Provision List ── */
+  .provision-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .provision-item {
+    padding: 6px 14px; background: var(--positive-bg); border: 1px solid #a7f3d0;
+    border-radius: 20px; font-size: 13px; font-weight: 500; color: #065f46;
+  }
+  .provision-item::before { content: '\2713 '; font-weight: 700; }
+
+  /* ── Onboarding: Calendar Slots ── */
+  .slot-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .slot-card {
+    flex: 1; min-width: 180px; padding: 16px; background: white;
+    border: 2px solid var(--border); border-radius: var(--radius);
+    cursor: pointer; transition: all .2s; text-align: center;
+  }
+  .slot-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .slot-day { font-weight: 600; font-size: 14px; color: var(--primary); margin-bottom: 6px; }
+  .slot-time { font-size: 15px; color: var(--accent); font-weight: 500; }
+
+  /* ── Onboarding: Complete Card ── */
+  .onboarding-complete {
+    background: var(--positive-bg); border: 1px solid #a7f3d0;
+    border-left: 4px solid var(--positive);
+  }
+  .onboarding-complete h2 { color: #065f46; }
+  .complete-summary { list-style: none; }
+  .complete-summary li { padding: 6px 0; font-size: 14px; color: var(--text-secondary); }
+  .complete-summary li strong { color: var(--text); }
+
+  /* ── Onboarding: Employee Picker ── */
+  .candidate-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .candidate-card {
+    padding: 16px; background: white; border: 2px solid var(--border);
+    border-radius: var(--radius); cursor: pointer; transition: all .2s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .candidate-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .candidate-info { flex: 1; }
+  .candidate-name { font-weight: 600; font-size: 15px; color: var(--primary); }
+  .candidate-details { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .candidate-arrow { color: var(--accent); font-size: 18px; font-weight: 700; }
+
+  /* ── Onboarding: Not Found ── */
+  .not-found { border-left: 4px solid var(--negative); }
+
+  /* ── Onboarding: Info Needed ── */
+  .info-needed { border-left: 4px solid var(--warning); }
+  .missing-fields { list-style: none; margin: 10px 0; }
+  .missing-fields li {
+    padding: 8px 14px; margin-bottom: 6px; background: var(--warning-bg);
+    border-radius: var(--radius); font-size: 14px; color: #92400e;
+  }
+  .missing-fields li::before { content: '\26A0 '; }
+
+  @media (max-width: 640px) {
+    .input-row { flex-direction: column; }
+    .main-area { padding: 20px 12px 12px; }
+    .card { padding: 18px; }
+    header h1 { font-size: 20px; }
+    .slot-cards { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-area" id="mainArea">
+  <div class="inner">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">H</div>
+        <h1>Horizon</h1>
+      </div>
+      <p>Business Intelligence &mdash; Ask anything about inventory, HR, or financial performance</p>
+      <a href="/" style="position:absolute;top:1rem;right:1.5rem;color:var(--text-muted);text-decoration:none;font-size:0.85rem">← Back to Home</a>
+    </header>
+
+    <div id="welcomeSection" class="welcome">
+      <h2>What would you like to know?</h2>
+      <div class="chips">
+        <span class="chip" onclick="fillQuery(this)">How is the Mumbai office performing this quarter?</span>
+        <span class="chip" onclick="fillQuery(this)">Compare gross margins across all offices</span>
+        <span class="chip" onclick="fillQuery(this)">Which products are most profitable in Bangalore?</span>
+        <span class="chip" onclick="fillQuery(this)">Show me products below safety stock</span>
+        <span class="chip" onclick="fillQuery(this)">What is the average salary by department?</span>
+        <span class="chip" onclick="fillQuery(this)">Top 10 products by revenue this month</span>
+        <span class="chip" onclick="fillQuery(this)">How much more do we sell on sale days vs normal days?</span>
+        <span class="chip" onclick="fillQuery(this)">Ankit Verma has been selected for engineering, start his onboarding</span>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+</div>
+
+<div class="query-section">
+  <div class="query-inner">
+    <div id="contextBar" class="context-bar" style="display:none">
+      <span id="contextText"></span>
+      <button class="clear-btn" onclick="clearConversation()">New conversation</button>
+    </div>
+    <div class="input-row">
+      <input type="text" id="queryInput" placeholder="Ask about revenue, inventory, employees, margins..." />
+      <button id="runBtn" onclick="runPipeline()">Ask</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const queryInput = document.getElementById('queryInput');
+const runBtn = document.getElementById('runBtn');
+const results = document.getElementById('results');
+const contextBar = document.getElementById('contextBar');
+const contextText = document.getElementById('contextText');
+const mainArea = document.getElementById('mainArea');
+const welcomeSection = document.getElementById('welcomeSection');
+
+let conversationHistory = [];
+let thinkingTimer = null;
+
+const PIPELINE_STEPS = [
+  { text: 'Understanding your question...', delay: 0 },
+  { text: 'Planning data retrieval...', delay: 4000 },
+  { text: 'Fetching data from database...', delay: 8000 },
+  { text: 'Analyzing financial data...', delay: 14000 },
+  { text: 'Generating insights and narrative...', delay: 35000 },
+  { text: 'Creating report document...', delay: 60000 },
+  { text: 'Finalizing output...', delay: 90000 },
+];
+
+queryInput.addEventListener('keydown', e => { if (e.key === 'Enter') runPipeline(); });
+queryInput.focus();
+
+function fillQuery(el) {
+  queryInput.value = el.textContent;
+  queryInput.focus();
+}
+
+function clearConversation() {
+  conversationHistory = [];
+  contextBar.style.display = 'none';
+  results.innerHTML = '';
+  results.className = 'results';
+  welcomeSection.style.display = '';
+}
+
+function updateContextBar() {
+  if (conversationHistory.length === 0) {
+    contextBar.style.display = 'none';
+    return;
+  }
+  const turns = conversationHistory.filter(t => t.role === 'user').length;
+  contextBar.style.display = 'flex';
+  contextText.textContent = 'Conversation active (' + turns + ' question' + (turns > 1 ? 's' : '') + ')';
+}
+
+function scrollToBottom() {
+  setTimeout(() => { mainArea.scrollTop = mainArea.scrollHeight; }, 50);
+}
+
+function showThinking() {
+  const id = 'thinking-' + Date.now();
+  let html = `<div class="thinking" id="${id}">`;
+  html += '<div class="thinking-header"><span class="spinner"></span><span>Working on it...</span></div>';
+  html += '<div class="thinking-steps">';
+  html += `<div class="thinking-step active" data-idx="0"><span class="icon"><span class="spinner"></span></span><span>${PIPELINE_STEPS[0].text}</span></div>`;
+  html += '</div></div>';
+  results.insertAdjacentHTML('beforeend', html);
+  scrollToBottom();
+
+  let currentStep = 0;
+  const el = document.getElementById(id);
+  const stepsContainer = el.querySelector('.thinking-steps');
+
+  thinkingTimer = setInterval(() => {
+    const nextIdx = currentStep + 1;
+    if (nextIdx >= PIPELINE_STEPS.length) { clearInterval(thinkingTimer); return; }
+
+    const elapsed = Date.now() - thinkingStartTime;
+    if (elapsed >= PIPELINE_STEPS[nextIdx].delay) {
+      const cur = stepsContainer.querySelector(`[data-idx="${currentStep}"]`);
+      if (cur) {
+        cur.classList.remove('active');
+        cur.classList.add('done');
+        cur.querySelector('.icon').innerHTML = '\u2713';
+      }
+      currentStep = nextIdx;
+      const stepHtml = `<div class="thinking-step active" data-idx="${currentStep}"><span class="icon"><span class="spinner"></span></span><span>${PIPELINE_STEPS[currentStep].text}</span></div>`;
+      stepsContainer.insertAdjacentHTML('beforeend', stepHtml);
+      scrollToBottom();
+    }
+  }, 1000);
+
+  return id;
+}
+
+function removeThinking(id) {
+  if (thinkingTimer) { clearInterval(thinkingTimer); thinkingTimer = null; }
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+let thinkingStartTime = 0;
+
+async function runPipeline() {
+  const query = queryInput.value.trim();
+  if (!query) return;
+
+  welcomeSection.style.display = 'none';
+  runBtn.disabled = true;
+  queryInput.value = '';
+
+  results.className = 'results visible';
+  if (results.children.length > 0) {
+    results.insertAdjacentHTML('beforeend', '<hr class="exchange-divider">');
+  }
+  results.insertAdjacentHTML('beforeend', `<div class="query-bubble"><div class="bubble">${esc(query)}</div></div>`);
+
+  thinkingStartTime = Date.now();
+  const thinkingId = showThinking();
+
+  try {
+    const resp = await fetch('/api/query', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        query,
+        conversation_history: conversationHistory,
+      }),
+    });
+    const data = await resp.json();
+
+    removeThinking(thinkingId);
+
+    conversationHistory.push({ role: 'user', content: query });
+
+    // Check if this is an onboarding response
+    if (data.type === 'onboarding') {
+      conversationHistory.push({ role: 'assistant', content: 'Onboarding workflow started.' });
+      updateContextBar();
+      renderOnboardingStep(data);
+      scrollToBottom();
+    } else {
+      const summary = data.narrative
+        ? data.narrative.executive_summary || 'Analysis completed.'
+        : data.error || 'No results.';
+      conversationHistory.push({ role: 'assistant', content: summary });
+
+      if (conversationHistory.length > 10) {
+        conversationHistory = conversationHistory.slice(-10);
+      }
+
+      updateContextBar();
+      renderResults(data);
+      scrollToBottom();
+    }
+  } catch (err) {
+    removeThinking(thinkingId);
+    results.insertAdjacentHTML('beforeend', `<div class="error-card"><h2>Error</h2><p>Request failed: ${esc(err.message)}</p></div>`);
+  } finally {
+    runBtn.disabled = false;
+    queryInput.focus();
+  }
+}
+
+function renderResults(data) {
+  results.className = 'results visible';
+  let html = '<div class="response-group">';
+
+  if (data.status === 'error' && !data.narrative) {
+    html += `<div class="error-card"><h2>Error</h2><p>${esc(data.error || 'Unknown error')}</p></div>`;
+    html += '</div>';
+    results.insertAdjacentHTML('beforeend', html);
+    return;
+  }
+
+  const n = data.narrative;
+  if (n) {
+    html += `<div class="card"><h2>Executive Summary</h2><p class="summary-text">${esc(n.executive_summary || '')}</p></div>`;
+
+    if (n.detailed_analysis) {
+      html += `<div class="card"><h2>Detailed Analysis</h2><p class="summary-text">${esc(n.detailed_analysis).replace(/\n/g, '<br>')}</p></div>`;
+    }
+
+    if (n.key_findings && n.key_findings.length) {
+      html += '<div class="card"><h2>Key Findings</h2><ul class="findings">';
+      for (const f of n.key_findings) {
+        const s = f.sentiment || 'neutral';
+        html += `<li class="finding ${s}"><span class="metric ${s}">${esc(f.metric)}</span><span class="text">${esc(f.finding)}</span></li>`;
+      }
+      html += '</ul></div>';
+    }
+
+    if (n.recommendations && n.recommendations.length) {
+      html += '<div class="card"><h2>Recommendations</h2><ul class="recs">';
+      for (const r of n.recommendations) {
+        const p = r.priority || 'medium';
+        html += `<li class="rec"><span class="badge ${p}">${p}</span><div><div class="rec-text">${esc(r.action)}</div>${r.impact ? `<div class="impact">${esc(r.impact)}</div>` : ''}</div></li>`;
+      }
+      html += '</ul></div>';
+    }
+
+    if (n.caveats && n.caveats.length) {
+      html += '<div class="card"><h2>Caveats</h2><ul class="caveats">';
+      for (const c of n.caveats) {
+        html += `<li>${esc(c)}</li>`;
+      }
+      html += '</ul></div>';
+    }
+  }
+
+  if (data.file) {
+    const f = data.file;
+    html += '<div class="card file-section"><h2>Generated Report</h2>';
+    if (f.name.endsWith('.pdf')) {
+      html += `<iframe src="${f.download_url}" title="Report Preview"></iframe>`;
+    }
+    html += `<div><a class="download-btn" href="${f.download_url}" download="${f.name}">Download ${f.name}</a></div>`;
+    html += `<div class="file-meta">${f.size_kb} KB</div>`;
+    html += '</div>';
+  } else if (data.error) {
+    html += `<div class="error-card"><h2>Document Generation Note</h2><p>${esc(data.error)}</p></div>`;
+  }
+
+  if (data.follow_ups && data.follow_ups.length) {
+    html += '<div class="card"><h2>Follow-up Questions</h2><div class="chips follow-ups">';
+    for (const q of data.follow_ups) {
+      html += `<span class="chip" onclick="fillQuery(this)">${esc(q)}</span>`;
+    }
+    html += '</div></div>';
+  }
+
+  html += `<div class="meta-bar"><span>Query ID: ${data.query_id || '-'}</span><span>Time: ${data.time_ms ? (data.time_ms / 1000).toFixed(1) + 's' : '-'}</span></div>`;
+  html += '</div>';
+
+  results.insertAdjacentHTML('beforeend', html);
+}
+
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ── Onboarding Functions ──
+
+function renderOnboardingStep(data) {
+  results.className = 'results visible';
+  let html = '<div class="response-group">';
+
+  if (data.step === 'error') {
+    html += `<div class="error-card"><h2>Onboarding Error</h2><p>${esc(data.error || 'Unknown error')}</p></div>`;
+    html += '</div>';
+    results.insertAdjacentHTML('beforeend', html);
+    return;
+  }
+
+  if (data.step === 'info_needed') {
+    html += `<div class="card info-needed"><h2>More Information Needed</h2>`;
+    html += `<p class="summary-text">${esc(data.message)}</p>`;
+    html += '<ul class="missing-fields">';
+    for (const f of (data.missing_fields || [])) {
+      const labels = {employee_name:'Employee Name', department:'Department', designation:'Designation', start_date:'Start Date', region:'Region'};
+      html += `<li>${labels[f] || f} is required</li>`;
+    }
+    html += '</ul></div>';
+  }
+
+  if (data.step === 'not_found') {
+    html += `<div class="card not-found"><h2>Employee Not Found</h2>`;
+    html += `<p class="summary-text">${esc(data.message)}</p></div>`;
+  }
+
+  if (data.step === 'pick_employee') {
+    html += `<div class="card"><h2>Select Employee</h2>`;
+    html += `<p class="summary-text">${esc(data.message)}</p>`;
+    html += '<div class="candidate-cards">';
+    for (const c of (data.candidates || [])) {
+      html += `<div class="candidate-card" onclick="selectEmployee(${c.onboarding_id})">`;
+      html += `<div class="candidate-info">`;
+      html += `<div class="candidate-name">${esc(c.employee_name)}</div>`;
+      html += `<div class="candidate-details">${esc(c.department || '')} &middot; ${esc(c.designation || '')} &middot; ${esc(c.region || '')} &middot; Start: ${esc(c.start_date || 'TBD')}</div>`;
+      html += `</div>`;
+      html += `<div class="candidate-arrow">&rarr;</div>`;
+      html += `</div>`;
+    }
+    html += '</div></div>';
+  }
+
+  if (data.step === 'email_review' || data.step === 'email_revised') {
+    // Show provisioned accounts
+    if (data.accounts_provisioned && data.accounts_provisioned.length) {
+      html += '<div class="card"><h2>Accounts Provisioned</h2>';
+      html += '<ul class="provision-list">';
+      for (const a of data.accounts_provisioned) {
+        html += `<li class="provision-item">${esc(a)}</li>`;
+      }
+      html += '</ul></div>';
+    }
+
+    const draft = data.email_draft || {};
+    const oid = data.onboarding_id;
+    const draftNum = data.draft_number || 1;
+    let draftNote = '';
+    if (data.step === 'email_revised') {
+      draftNote = `<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Draft #${draftNum} — revised based on your feedback</p>`;
+    }
+    const revisionNote = (data.note) ? `<p style="font-size:12px;color:var(--warning);margin-top:8px;">${esc(data.note)}</p>` : '';
+
+    html += `<div class="card onboarding-email-card">`;
+    html += `<h2>Welcome Email Draft</h2>`;
+    html += draftNote;
+    html += `<div class="email-preview">`;
+    html += `<div class="email-subject"><strong>Subject:</strong> ${esc(draft.subject || '')}</div>`;
+    html += `<div class="email-body">${esc(draft.body || '')}</div>`;
+    html += `</div>`;
+    html += `<div class="email-actions">`;
+    html += `<button class="btn-send" onclick="emailAction(${oid}, 'send')">Send Email</button>`;
+    html += `<button class="btn-revise" onclick="showReviseInput(${oid})">Revise</button>`;
+    html += `<button class="btn-skip" onclick="emailAction(${oid}, 'skip')">Skip email</button>`;
+    html += `</div>`;
+    html += `<div class="revise-input" id="revise-input-${oid}" style="display:none">`;
+    html += `<textarea placeholder="What should be changed?"></textarea>`;
+    html += `<button onclick="submitRevision(${oid})">Submit Revision</button>`;
+    html += `</div>`;
+    html += revisionNote;
+    html += `</div>`;
+  }
+
+  if (data.step === 'calendar_slots') {
+    if (data.email_status === 'email_sent') {
+      html += `<div class="card" style="border-left:4px solid var(--positive)"><h2>Email Sent</h2><p class="summary-text">Welcome email has been sent successfully.</p></div>`;
+    } else if (data.email_status === 'email_skipped') {
+      html += `<div class="card"><h2>Email Skipped</h2><p class="summary-text">Welcome email was skipped. Proceeding to schedule the kickoff meeting.</p></div>`;
+    }
+
+    const oid = data.onboarding_id;
+    const slots = data.slots || [];
+    html += `<div class="card"><h2>Schedule Kickoff Meeting</h2>`;
+    html += `<p class="summary-text">Pick a time for the kickoff meeting with ${esc(data.employee_name || 'the new hire')}:</p>`;
+    html += '<div class="slot-cards">';
+    for (const s of slots) {
+      html += `<div class="slot-card" onclick="selectSlot(${oid}, ${s.index})">`;
+      html += `<div class="slot-day">${esc(s.day)}, ${esc(s.date)}</div>`;
+      html += `<div class="slot-time">${esc(s.start)} — ${esc(s.end)}</div>`;
+      html += `</div>`;
+    }
+    html += '</div></div>';
+  }
+
+  if (data.step === 'complete') {
+    html += `<div class="card onboarding-complete"><h2>Onboarding Complete</h2>`;
+    html += `<p class="summary-text">Onboarding for <strong>${esc(data.employee_name)}</strong> has been completed successfully!</p>`;
+    html += '<ul class="complete-summary">';
+    html += `<li><strong>Department:</strong> ${esc(data.department || '')}</li>`;
+    html += `<li><strong>Kickoff Meeting:</strong> ${esc(data.meeting_time || 'Scheduled')}</li>`;
+    if (data.employee_id) html += `<li><strong>Added to HR System:</strong> Employee ID #${data.employee_id}</li>`;
+    html += '</ul>';
+    if (data.doc_file && data.doc_file.download_url) {
+      html += `<div style="margin-top:14px"><a class="download-btn" href="${data.doc_file.download_url}" download="${data.doc_file.name}">Download Onboarding Guide</a></div>`;
+    }
+    html += '</div>';
+  }
+
+  if (data.time_ms) {
+    html += `<div class="meta-bar"><span>Time: ${(data.time_ms / 1000).toFixed(1)}s</span></div>`;
+  }
+
+  html += '</div>';
+  results.insertAdjacentHTML('beforeend', html);
+  scrollToBottom();
+}
+
+async function emailAction(onboardingId, action, feedback) {
+  const body = { action };
+  if (feedback) body.feedback = feedback;
+
+  // Disable buttons
+  document.querySelectorAll('.btn-send, .btn-revise, .btn-skip').forEach(b => b.disabled = true);
+
+  thinkingStartTime = Date.now();
+  const thinkingId = showThinking();
+
+  try {
+    const resp = await fetch(`/api/onboarding/${onboardingId}/email-action`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    removeThinking(thinkingId);
+    renderOnboardingStep(data);
+  } catch (err) {
+    removeThinking(thinkingId);
+    results.insertAdjacentHTML('beforeend', `<div class="error-card"><h2>Error</h2><p>${esc(err.message)}</p></div>`);
+  }
+}
+
+function showReviseInput(onboardingId) {
+  const el = document.getElementById(`revise-input-${onboardingId}`);
+  if (el) el.style.display = 'block';
+}
+
+async function submitRevision(onboardingId) {
+  const textarea = document.querySelector(`#revise-input-${onboardingId} textarea`);
+  const feedback = textarea.value.trim();
+  if (!feedback) return;
+  await emailAction(onboardingId, 'revise', feedback);
+}
+
+async function selectEmployee(onboardingId) {
+  // Disable candidate cards
+  document.querySelectorAll('.candidate-card').forEach(c => { c.style.pointerEvents = 'none'; c.style.opacity = '0.5'; });
+
+  thinkingStartTime = Date.now();
+  const thinkingId = showThinking();
+
+  try {
+    const resp = await fetch('/api/onboarding/select-employee', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ onboarding_id: onboardingId }),
+    });
+    const data = await resp.json();
+    removeThinking(thinkingId);
+    renderOnboardingStep(data);
+  } catch (err) {
+    removeThinking(thinkingId);
+    results.insertAdjacentHTML('beforeend', `<div class="error-card"><h2>Error</h2><p>${esc(err.message)}</p></div>`);
+  }
+}
+
+async function selectSlot(onboardingId, slotIndex) {
+  // Disable slot cards
+  document.querySelectorAll('.slot-card').forEach(c => { c.style.pointerEvents = 'none'; c.style.opacity = '0.5'; });
+
+  thinkingStartTime = Date.now();
+  const thinkingId = showThinking();
+
+  try {
+    const resp = await fetch(`/api/onboarding/${onboardingId}/select-slot`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ slot_index: slotIndex }),
+    });
+    const data = await resp.json();
+    removeThinking(thinkingId);
+    renderOnboardingStep(data);
+  } catch (err) {
+    removeThinking(thinkingId);
+    results.insertAdjacentHTML('beforeend', `<div class="error-card"><h2>Error</h2><p>${esc(err.message)}</p></div>`);
+  }
+}
+</script>
+</body>
+</html>

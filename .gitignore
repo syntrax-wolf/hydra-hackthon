@@ -1,0 +1,77 @@
+# ========================
+# Credentials & Secrets
+# ========================
+.env
+*.pem
+*.key
+credentials.json
+
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+.python-version
+
+# ========================
+# Generated runtime files
+# ========================
+generated/*.pdf
+generated/*.pptx
+generated/*.xlsx
+generated/*.png
+generated/*.jpg
+!generated/.gitkeep
+
+# Resume uploads
+resumes/
+resume/
+
+# ========================
+# IDE & Editors
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Docker
+# ========================
+pgdata/
+
+# ========================
+# Claude Code
+# ========================
+.claude/
+
+# ========================
+# Project spec (internal)
+# ========================
+push_to_hydra.py
+PROJECT.md
+PROJECT2.md
+
+# ========================
+# Archives
+# ========================
+*.zip

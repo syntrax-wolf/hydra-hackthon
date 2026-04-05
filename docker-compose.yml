@@ -1,0 +1,79 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-horizon}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # SQL schema files run in alphabetical order on first init
+      - ./shipathon_JMD/00_extensions.sql:/docker-entrypoint-initdb.d/00_extensions.sql:ro
+      - ./shipathon_JMD/01_inventory.sql:/docker-entrypoint-initdb.d/01_inventory.sql:ro
+      - ./shipathon_JMD/02_hr.sql:/docker-entrypoint-initdb.d/02_hr.sql:ro
+      - ./shipathon_JMD/03_finance.sql:/docker-entrypoint-initdb.d/03_finance.sql:ro
+      - ./shipathon_JMD/04_applicant.sql:/docker-entrypoint-initdb.d/04_applicant.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-seed:
+    image: python:3.12-slim
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-horizon}"
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-horizon}
+    volumes:
+      - ./shipathon_JMD/seed_data.py:/work/seed_data.py:ro
+      - ./shipathon_JMD/seed_applicant_data.py:/work/seed_applicant_data.py:ro
+    working_dir: /work
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        pip install --quiet asyncpg numpy faker psycopg2-binary sentence-transformers &&
+        echo "=== Seeding base data ===" &&
+        python seed_data.py &&
+        echo "=== Seeding applicant data ===" &&
+        python seed_applicant_data.py &&
+        echo "=== DB seed complete ==="
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-8501}:8501"
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-qwen/qwen3.5-27b}
+      OPENROUTER_CODING_MODEL: ${OPENROUTER_CODING_MODEL:-qwen/qwen3-coder-next}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-horizon}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8501
+      SANDBOX_TIMEOUT: ${SANDBOX_TIMEOUT:-60}
+      GENERATED_DIR: /app/generated
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      RESUME_UPLOAD_DIR: /app/resumes
+    volumes:
+      - ./generated:/app/generated
+      - ./resumes:/app/resumes
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
